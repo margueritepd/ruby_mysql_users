@@ -43,6 +43,7 @@ module MysqlUsers
       sql = "GRANT #{grants.join(',')}"
       sql += " ON #{db}.#{table}"
       sql += " TO '#{e_username}'@'#{e_scope}'"
+      sql += " WITH GRANT OPTION" if options.fetch(:with_grant_option, false)
 
       db_client.query(sql)
     end

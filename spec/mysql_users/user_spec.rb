@@ -199,9 +199,16 @@ RSpec.describe(:user) do
 
     it 'should give grants to the user' do
       expect(database_client).to receive(:query).with(
-        /GRANT .* TO 'marguerite'@'%'/
+        /^GRANT .* TO 'marguerite'@'%'$/
       )
       user.grant(grant_options)
+    end
+
+    it 'should give give "with grant option" if required' do
+      expect(database_client).to receive(:query).with(
+        /^GRANT .* WITH GRANT OPTION$/
+      )
+      user.grant(grant_options.merge({with_grant_option: true}))
     end
   end
 end
