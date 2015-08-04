@@ -210,5 +210,10 @@ RSpec.describe(:user) do
       )
       user.grant(grant_options.merge({with_grant_option: true}))
     end
+
+    it 'should flush privileges after granting' do
+      expect(database_client).to receive(:query).with('FLUSH PRIVILEGES')
+      user.grant(grant_options)
+    end
   end
 end
