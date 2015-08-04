@@ -15,21 +15,21 @@ RSpec.describe(:user) do
     )
   end
 
+  let(:db_user_result) { [{'User' => 'marguerite', 'Scope' => '%'}] }
+  let(:db_empty_result) { [] }
+  let(:user_select_regex) { /SELECT User, Scope FROM mysql.user/ }
+
   context(:exists?) do
 
     it 'exists? should return true if that username+scope exists' do
-      allow(database_client).to receive(:query).with(
-        /SELECT User, Scope FROM mysql.user/
-      ).and_return(
-        [{'User' => 'marguerite', 'Scope' => '%'}]
-      )
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_user_result)
       expect(user.exists?).to eq(true)
     end
 
     it 'exists? should return false if that username+scope doesn\'t exists' do
-      allow(database_client).to receive(:query).with(
-        /SELECT User, Scope FROM mysql.user/
-      ).and_return([])
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_empty_result)
       expect(user.exists?).to eq(false)
     end
 
@@ -61,24 +61,20 @@ RSpec.describe(:user) do
   end
 
   context(:create_idempotently) do
+    let(:create_user_regex) { /CREATE USER 'marguerite'@'%'/ }
+
     it 'should create the user if it doesn\'t exist' do
-      allow(database_client).to receive(:query).with(
-        /SELECT User, Scope FROM mysql.user/
-      ).and_return([])
-      expect(database_client).to receive(:query).with(
-        /CREATE USER 'marguerite'@'%'/
-      )
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_empty_result)
+      expect(database_client).to receive(:query).with(create_user_regex)
 
       user.create_idempotently
     end
 
     it 'should not create the user if it does exist' do
-      allow(database_client).to receive(:query).with(
-        /SELECT User, Scope FROM mysql.user/
-      ).and_return([{'User' => 'marguerite', 'Scope' => '%'}])
-      expect(database_client).to_not receive(:query).with(
-        /CREATE USER 'marguerite'@'%'/
-      )
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_user_result)
+      expect(database_client).to_not receive(:query).with(create_user_regex)
 
       user.create_idempotently
     end
