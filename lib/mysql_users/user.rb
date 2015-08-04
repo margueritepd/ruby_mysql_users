@@ -33,7 +33,24 @@ module MysqlUsers
       db_client.query(sql)
     end
 
+    # TODO should this be its own class?
+    def grant(options)
+      db = backtick_or_star(options[:database])
+      table = backtick_or_star(options[:table])
+      sql = "#{db}.#{table}"
+
+      db_client.query(sql)
+    end
+
     private
+
+    def backtick_or_star(name)
+      return '*' unless name
+      backtick_error = 'refusing to give grants on an entity '\
+        'whose name contains backticks'
+      raise backtick_error if /`/.match(name)
+      "`#{escape(name)}`"
+    end
 
     def has_password?
       !@e_password.nil?

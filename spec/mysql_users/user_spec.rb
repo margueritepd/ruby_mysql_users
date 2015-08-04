@@ -126,7 +126,7 @@ RSpec.describe(:user) do
   end
 
   context(:drop) do
-    it 'drop should remove user from database' do
+    it 'should remove user from database' do
       expect(database_client).to receive(:query).with(
         %q{DROP USER 'marguerite'@'%'}
       )
@@ -134,4 +134,47 @@ RSpec.describe(:user) do
     end
   end
 
+  context(:grant) do
+    let(:grant_options) do
+      {
+        database: 'db',
+        table: 'tbl',
+        grants: [
+          :select
+        ]
+      }
+    end
+
+    it 'should grant to * if no database provided' do
+      grant_options.delete(:database)
+      expect(database_client).to receive(:query).with('*.`tbl`')
+      user.grant(grant_options)
+    end
+
+    it 'should grant to * if no table provided' do
+      grant_options.delete(:table)
+      expect(database_client).to receive(:query).with('`db`.*')
+      user.grant(grant_options)
+    end
+
+    it 'should surround table and db name in backticks' do
+      expect(database_client).to receive(:query).with('`db`.`tbl`')
+      user.grant(grant_options)
+    end
+
+    it 'should error if provided table name contains backticks' do
+      expect(database_client).to_not receive(:query).with(/stompy`/)
+      expect {
+        user.grant(grant_options.merge({table: 'stompy`'}))
+      }.to raise_error(/refusing to give grants/)
+    end
+
+    it 'should error if provided database name contains `' do
+      expect(database_client).to_not receive(:query).with(/stompy`/)
+      expect {
+        user.grant(grant_options.merge({database: 'stompy`'}))
+      }.to raise_error(/refusing to give grants/)
+    end
+
+  end
 end
