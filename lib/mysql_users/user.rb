@@ -2,21 +2,22 @@ require 'mysql2'
 
 module MysqlUsers
   class User
-    attr_reader :username
     attr_reader :db_client
-    attr_reader :scope
+    attr_reader :e_username
+    attr_reader :e_scope
 
     def initialize(db_client, options={})
       @db_client = db_client
-      @username = options[:username]
-      @scope = options[:scope]
+      @e_username = escape(options[:username])
+      @e_scope = escape(options[:scope])
+      @raw_username = options[:username]
+      @raw_scope = options[:scope]
     end
 
     def exists?
-      result = db_client.query(
-        "SELECT User, Scope FROM mysql.user WHERE "\
-        "User='#{escape(username)}' AND Scope='#{escape(scope)}'"
-      )
+      query = "SELECT User, Scope FROM mysql.user WHERE "\
+        "User='#{e_username}' AND Scope='#{e_scope}'"
+      result = db_client.query(query)
       result.count != 0
     end
 
