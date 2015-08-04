@@ -60,4 +60,28 @@ RSpec.describe(:user) do
     end
   end
 
+  context(:create_idempotently) do
+    it 'should create the user if it doesn\'t exist' do
+      allow(database_client).to receive(:query).with(
+        /SELECT User, Scope FROM mysql.user/
+      ).and_return([])
+      expect(database_client).to receive(:query).with(
+        /CREATE USER 'marguerite'@'%'/
+      )
+
+      user.create_idempotently
+    end
+
+    it 'should not create the user if it does exist' do
+      allow(database_client).to receive(:query).with(
+        /SELECT User, Scope FROM mysql.user/
+      ).and_return([{'User' => 'marguerite', 'Scope' => '%'}])
+      expect(database_client).to_not receive(:query).with(
+        /CREATE USER 'marguerite'@'%'/
+      )
+
+      user.create_idempotently
+    end
+  end
+
 end

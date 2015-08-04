@@ -21,7 +21,18 @@ module MysqlUsers
       result.count != 0
     end
 
+    def create_idempotently
+      return if exists?
+      create
+    end
+
     private
+
+    def create
+      # TODO: add 'IDENTIFIED BY' for password
+      sql = "CREATE USER '#{e_username}'@'#{e_scope}'"
+      db_client.query(sql)
+    end
 
     def escape(string)
       Mysql2::Client.escape(string)
