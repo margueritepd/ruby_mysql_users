@@ -176,5 +176,20 @@ RSpec.describe(:user) do
       }.to raise_error(/refusing to give grants/)
     end
 
+    it 'should not run grant query if grant contains odd characters' do
+      expect {
+        user.grant(grant_options.merge({grants: ['&']}))
+      }.to raise_error('grants should match [a-zA-Z ]. Refusing to give grants')
+    end
+
+    it 'should raise error if no grants specified' do
+      grant_options.delete(:grants)
+      expect { user.grant(grant_options) }.to raise_error(KeyError)
+    end
+
+    it 'should raise error if empty grants specified' do
+      expect { user.grant(grant_options.merge({grants: []})) }
+        .to raise_error('provided list of grants must be non-empty')
+    end
   end
 end

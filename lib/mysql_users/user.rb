@@ -37,12 +37,23 @@ module MysqlUsers
     def grant(options)
       db = backtick_or_star(options[:database])
       table = backtick_or_star(options[:table])
+      grants = options.fetch(:grants)
+      verify_grants_sanitized(grants)
       sql = "#{db}.#{table}"
 
       db_client.query(sql)
     end
 
     private
+
+    def verify_grants_sanitized(grants)
+      unless grants.all?{ |grant| /^[a-zA-Z ]+$/.match(grant) }
+        raise "grants should match [a-zA-Z ]. Refusing to give grants"
+      end
+      if grants.empty?
+        raise 'provided list of grants must be non-empty'
+      end
+    end
 
     def backtick_or_star(name)
       return '*' unless name
