@@ -147,18 +147,18 @@ RSpec.describe(:user) do
 
     it 'should grant to * if no database provided' do
       grant_options.delete(:database)
-      expect(database_client).to receive(:query).with(/ON \*\.`tbl`/)
+      expect(database_client).to receive(:query).with(/GRANT .* ON \*\.`tbl`/)
       user.grant(grant_options)
     end
 
     it 'should grant to * if no table provided' do
       grant_options.delete(:table)
-      expect(database_client).to receive(:query).with(/ON `db`\.\*/)
+      expect(database_client).to receive(:query).with(/GRANT .* ON `db`\.\*/)
       user.grant(grant_options)
     end
 
     it 'should surround table and db name in backticks' do
-      expect(database_client).to receive(:query).with(/ON `db`\.`tbl`/)
+      expect(database_client).to receive(:query).with(/GRANT .* ON `db`\.`tbl`/)
       user.grant(grant_options)
     end
 
@@ -195,6 +195,13 @@ RSpec.describe(:user) do
     it 'should give all grants' do
       expect(database_client).to receive(:query).with(/^GRANT foo,bar/)
       user.grant(grant_options.merge({grants: [:foo, :bar]}))
+    end
+
+    it 'should give grants to the user' do
+      expect(database_client).to receive(:query).with(
+        /GRANT .* TO 'marguerite'@'%'/
+      )
+      user.grant(grant_options)
     end
   end
 end

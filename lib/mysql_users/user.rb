@@ -40,8 +40,9 @@ module MysqlUsers
       grants = options.fetch(:grants)
       verify_grants_sanitized(grants)
 
-      sql = "GRANT #{grants.join(',')} "
-      sql += "ON #{db}.#{table}"
+      sql = "GRANT #{grants.join(',')}"
+      sql += " ON #{db}.#{table}"
+      sql += " TO '#{e_username}'@'#{e_scope}'"
 
       db_client.query(sql)
     end
