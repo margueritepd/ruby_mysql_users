@@ -39,7 +39,9 @@ module MysqlUsers
       table = backtick_or_star(options[:table])
       grants = options.fetch(:grants)
       verify_grants_sanitized(grants)
-      sql = "#{db}.#{table}"
+
+      sql = "GRANT #{grants.join(',')} "
+      sql += "ON #{db}.#{table}"
 
       db_client.query(sql)
     end
