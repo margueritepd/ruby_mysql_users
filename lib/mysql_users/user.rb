@@ -8,8 +8,8 @@ module MysqlUsers
 
     def initialize(db_client, options={})
       @db_client = db_client
-      @e_username = escape(options[:username])
-      @e_scope = escape(options[:scope])
+      @e_username = escape(options.fetch(:username))
+      @e_scope = escape(options.fetch(:scope))
       @raw_username = options[:username]
       @raw_scope = options[:scope]
     end

@@ -19,6 +19,20 @@ RSpec.describe(:user) do
   let(:db_empty_result) { [] }
   let(:user_select_regex) { /SELECT User, Scope FROM mysql.user/ }
 
+  context(:new) do
+    it 'errors if username is missing' do
+      expect {
+        MysqlUsers::User.new(database_client, { scope: '%' })
+      }.to raise_exception(KeyError)
+    end
+
+    it 'errors if scope is missing' do
+      expect {
+        MysqlUsers::User.new(database_client, { username: 'marg' })
+      }.to raise_exception(KeyError)
+    end
+  end
+
   context(:exists?) do
 
     it 'exists? should return true if that username+scope exists' do
