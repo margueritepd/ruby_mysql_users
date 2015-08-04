@@ -28,6 +28,11 @@ module MysqlUsers
       create
     end
 
+    def drop
+      sql = "DROP USER '#{e_username}'@'#{e_scope}'"
+      db_client.query(sql)
+    end
+
     private
 
     def has_password?

@@ -125,4 +125,13 @@ RSpec.describe(:user) do
     end
   end
 
+  context(:drop) do
+    it 'drop should remove user from database' do
+      expect(database_client).to receive(:query).with(
+        %q{DROP USER 'marguerite'@'%'}
+      )
+      user.drop
+    end
+  end
+
 end
