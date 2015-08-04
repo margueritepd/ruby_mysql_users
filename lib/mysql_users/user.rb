@@ -10,6 +10,8 @@ module MysqlUsers
       @db_client = db_client
       @e_username = escape(options.fetch(:username))
       @e_scope = escape(options.fetch(:scope))
+      p = options[:password]
+      @e_password = p ? escape(p) : nil
       @raw_username = options[:username]
       @raw_scope = options[:scope]
     end
@@ -28,9 +30,14 @@ module MysqlUsers
 
     private
 
+    def has_password?
+      !@e_password.nil?
+    end
+
     def create
-      # TODO: add 'IDENTIFIED BY' for password
       sql = "CREATE USER '#{e_username}'@'#{e_scope}'"
+      sql += " IDENTIFIED BY '#{@e_password}'" if has_password?
+
       db_client.query(sql)
     end
 

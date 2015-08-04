@@ -18,6 +18,7 @@ RSpec.describe(:user) do
   let(:db_user_result) { [{'User' => 'marguerite', 'Scope' => '%'}] }
   let(:db_empty_result) { [] }
   let(:user_select_regex) { /SELECT User, Scope FROM mysql.user/ }
+  let(:bobby_tables) { "Robert'; DROP TABLE Students; --" }
 
   context(:new) do
     it 'errors if username is missing' do
@@ -48,10 +49,9 @@ RSpec.describe(:user) do
     end
 
     it 'should escape username before interpolating in sql string' do
-      injection = "Robert'; DROP TABLE Students; --"
       user = MysqlUsers::User.new(
         database_client,
-        { username: injection, scope: '%' },
+        { username: bobby_tables, scope: '%' },
       )
 
       expect(database_client).to_not receive(:query).with(/bert'/)
@@ -61,10 +61,9 @@ RSpec.describe(:user) do
     end
 
     it 'should escape scope before interpolating in sql string' do
-      injection = "Robert'; DROP TABLE Students; --"
       user = MysqlUsers::User.new(
         database_client,
-        { username: 'marguerite', scope: injection },
+        { username: 'marguerite', scope: bobby_tables },
       )
 
       expect(database_client).to_not receive(:query).with(/bert'/)
@@ -75,9 +74,9 @@ RSpec.describe(:user) do
   end
 
   context(:create_idempotently) do
-    let(:create_user_regex) { /CREATE USER 'marguerite'@'%'/ }
+    let(:create_user_regex) { /^CREATE USER 'marguerite'@'%'$/ }
 
-    it 'should create the user if it doesn\'t exist' do
+    it 'should create the user without password if no password given' do
       allow(database_client).to receive(:query).with(user_select_regex)
         .and_return(db_empty_result)
       expect(database_client).to receive(:query).with(create_user_regex)
@@ -89,6 +88,34 @@ RSpec.describe(:user) do
       allow(database_client).to receive(:query).with(user_select_regex)
         .and_return(db_user_result)
       expect(database_client).to_not receive(:query).with(create_user_regex)
+
+      user.create_idempotently
+    end
+
+    it 'should create the user with password if password given' do
+      user = MysqlUsers::User.new(
+        database_client,
+        { username: 'u', scope: '%', password: 'p' },
+      )
+
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_empty_result)
+      expect(database_client).to receive(:query).with(
+        /^CREATE USER 'u'@'%' IDENTIFIED BY 'p'$/
+      )
+
+      user.create_idempotently
+    end
+
+    it 'should escape interpolated password when creating' do
+      user = MysqlUsers::User.new(
+        database_client,
+        { username: 'u', scope: '%', password: bobby_tables },
+      )
+      allow(database_client).to receive(:query).with(user_select_regex)
+        .and_return(db_empty_result)
+      expect(database_client).to_not receive(:query).with(/bert'/)
+      expect(database_client).to receive(:query).with(/^CREATE.*bert\\'/)
 
       user.create_idempotently
     end
