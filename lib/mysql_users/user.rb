@@ -35,8 +35,8 @@ module MysqlUsers
 
     # TODO should this be its own class?
     def grant(options)
-      db = backtick_or_star(options[:database])
-      table = backtick_or_star(options[:table])
+      db = backtick_or_star(options[:database], 'give grants to')
+      table = backtick_or_star(options[:table], 'give grants to')
       grants = options.fetch(:grants)
       verify_grants_sanitized(grants)
 
@@ -50,8 +50,8 @@ module MysqlUsers
     end
 
     def revoke(options)
-      db = backtick_or_star(options[:database])
-      table = backtick_or_star(options[:table])
+      db = backtick_or_star(options[:database], 'revoke grants from')
+      table = backtick_or_star(options[:table], 'revoke grants from')
       sql = "REVOKE "
       sql += " ON #{db}.#{table}"
       db_client.query(sql)
@@ -72,9 +72,9 @@ module MysqlUsers
       end
     end
 
-    def backtick_or_star(name)
+    def backtick_or_star(name, verb)
       return '*' unless name
-      backtick_error = 'refusing to give grants on an entity '\
+      backtick_error = "refusing to #{verb} an entity "\
         'whose name contains backticks'
       raise backtick_error if /`/.match(name)
       "`#{escape(name)}`"

@@ -260,5 +260,19 @@ RSpec.describe(:user) do
       user.revoke(grant_options)
     end
 
+    it 'should error if provided table name contains backticks' do
+      expect(database_client).to_not receive(:query).with(/stompy`/)
+      expect {
+        user.revoke(grant_options.merge({table: 'stompy`'}))
+      }.to raise_error(/refusing to revoke grants/)
+    end
+
+    it 'should error if provided database name contains `' do
+      expect(database_client).to_not receive(:query).with(/stompy`/)
+      expect {
+        user.revoke(grant_options.merge({database: 'stompy`'}))
+      }.to raise_error(/refusing to revoke grants/)
+    end
+
   end
 end
