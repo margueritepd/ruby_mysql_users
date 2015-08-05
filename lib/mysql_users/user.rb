@@ -29,7 +29,7 @@ module MysqlUsers
     end
 
     def drop
-      sql = "DROP USER '#{e_username}'@'#{e_scope}'"
+      sql = "DROP USER #{user_address}"
       db_client.query(sql)
     end
 
@@ -42,7 +42,7 @@ module MysqlUsers
 
       sql = "GRANT #{grants.join(',')}"
       sql += " ON #{db}.#{table}"
-      sql += " TO '#{e_username}'@'#{e_scope}'"
+      sql += " TO #{user_address}"
       sql += " WITH GRANT OPTION" if options.fetch(:with_grant_option, false)
 
       db_client.query(sql)
@@ -50,6 +50,10 @@ module MysqlUsers
     end
 
     private
+
+    def user_address
+      "'#{e_username}'@'#{e_scope}'"
+    end
 
     def verify_grants_sanitized(grants)
       unless grants.all?{ |grant| /^[a-zA-Z ]+$/.match(grant) }
@@ -73,7 +77,7 @@ module MysqlUsers
     end
 
     def create
-      sql = "CREATE USER '#{e_username}'@'#{e_scope}'"
+      sql = "CREATE USER #{user_address}"
       sql += " IDENTIFIED BY '#{@e_password}'" if has_password?
 
       db_client.query(sql)
