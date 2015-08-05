@@ -145,6 +145,13 @@ RSpec.describe(:user) do
       }
     end
 
+    it 'should grant with full correct query (happy path)' do
+      expect(database_client).to receive(:query).with(
+        "GRANT select ON `db`.`tbl` TO 'marguerite'@'%'"
+      )
+      user.grant(grant_options)
+    end
+
     it 'should grant to * if no database provided' do
       grant_options.delete(:database)
       expect(database_client).to receive(:query).with(/GRANT .* ON \*\.`tbl`/)
