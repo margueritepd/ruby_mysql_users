@@ -56,6 +56,7 @@ module MysqlUsers
       verify_grants_sanitized(grants, 'revoke')
       sql = "REVOKE #{grants.join(',')}"
       sql += " ON #{db}.#{table}"
+      sql += " FROM #{user_address}"
       db_client.query(sql)
     end
 

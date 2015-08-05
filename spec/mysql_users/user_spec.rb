@@ -236,7 +236,6 @@ RSpec.describe(:user) do
     end
 
     it 'should revoke with full correct query (happy path)' do
-      pending('full revoke implementation')
       expect(database_client).to receive(:query).with(
         "REVOKE select ON `db`.`tbl` FROM 'marguerite'@'%'"
       )
@@ -295,6 +294,11 @@ RSpec.describe(:user) do
         .to raise_error('provided list of grants must be non-empty')
     end
 
-
+    it 'should revoke grants from the user' do
+      expect(database_client).to receive(:query).with(
+        /^REVOKE .* FROM 'marguerite'@'%'$/
+      )
+      user.revoke(grant_options)
+    end
   end
 end
