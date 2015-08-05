@@ -1,10 +1,12 @@
 require 'mysql_users'
-require 'mysql2'
 
 RSpec.describe(:user) do
   let(:database_client) do
-    db_client = double(Mysql2::Client)
+    db_client = double()
     allow(db_client).to receive(:query).and_return([])
+    allow(db_client).to receive(:escape) do |string|
+      string.gsub('\\', '\\').gsub("'", { "'" => "\\'" })
+    end
     db_client
   end
 

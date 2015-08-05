@@ -1,5 +1,3 @@
-require 'mysql2'
-
 module MysqlUsers
   class User
     attr_reader :db_client
@@ -92,7 +90,7 @@ module MysqlUsers
     end
 
     def escape(string)
-      Mysql2::Client.escape(string)
+      db_client.escape(string)
     end
   end
 end
