@@ -38,7 +38,7 @@ module MysqlUsers
       db = backtick_or_star(options[:database], 'give grants to')
       table = backtick_or_star(options[:table], 'give grants to')
       grants = options.fetch(:grants)
-      verify_grants_sanitized(grants)
+      verify_grants_sanitized(grants, 'give')
 
       sql = "GRANT #{grants.join(',')}"
       sql += " ON #{db}.#{table}"
@@ -52,7 +52,9 @@ module MysqlUsers
     def revoke(options)
       db = backtick_or_star(options[:database], 'revoke grants from')
       table = backtick_or_star(options[:table], 'revoke grants from')
-      sql = "REVOKE "
+      grants = options.fetch(:grants)
+      verify_grants_sanitized(grants, 'revoke')
+      sql = "REVOKE #{grants.join(',')}"
       sql += " ON #{db}.#{table}"
       db_client.query(sql)
     end
@@ -63,9 +65,9 @@ module MysqlUsers
       "'#{e_username}'@'#{e_scope}'"
     end
 
-    def verify_grants_sanitized(grants)
+    def verify_grants_sanitized(grants, verb)
       unless grants.all?{ |grant| /^[a-zA-Z ]+$/.match(grant) }
-        raise "grants should match [a-zA-Z ]. Refusing to give grants"
+        raise "grants should match [a-zA-Z ]. Refusing to #{verb} grants"
       end
       if grants.empty?
         raise 'provided list of grants must be non-empty'

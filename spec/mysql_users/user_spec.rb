@@ -274,5 +274,27 @@ RSpec.describe(:user) do
       }.to raise_error(/refusing to revoke grants/)
     end
 
+    it 'should revoke all specified grants' do
+      expect(database_client).to receive(:query).with(/^REVOKE foo,bar/)
+      user.revoke(grant_options.merge({grants: [:foo, :bar]}))
+    end
+
+    it 'should not run revoke query if grant contains odd characters' do
+      expect {
+        user.revoke(grant_options.merge({grants: ['&']}))
+      }.to raise_error('grants should match [a-zA-Z ]. Refusing to revoke grants')
+    end
+
+    it 'should raise error if no grants specified' do
+      grant_options.delete(:grants)
+      expect { user.revoke(grant_options) }.to raise_error(KeyError)
+    end
+
+    it 'should raise error if empty grants specified' do
+      expect { user.revoke(grant_options.merge({grants: []})) }
+        .to raise_error('provided list of grants must be non-empty')
+    end
+
+
   end
 end
