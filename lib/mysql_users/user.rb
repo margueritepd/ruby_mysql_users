@@ -13,8 +13,8 @@ module MysqlUsers
     end
 
     def exists?
-      query = "SELECT User, Scope FROM mysql.user WHERE "\
-        "User='#{e_username}' AND Scope='#{e_host}'"
+      query = "SELECT User, Host FROM mysql.user WHERE "\
+        "User='#{e_username}' AND Host='#{e_host}'"
       result = db_client.query(query)
       result.count != 0
     end

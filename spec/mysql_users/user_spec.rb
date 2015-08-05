@@ -17,9 +17,9 @@ RSpec.describe(:user) do
     )
   end
 
-  let(:db_user_result) { [{'User' => 'marguerite', 'Scope' => '%'}] }
+  let(:db_user_result) { [{'User' => 'marguerite', 'Host' => '%'}] }
   let(:db_empty_result) { [] }
-  let(:user_select_regex) { /SELECT User, Scope FROM mysql.user/ }
+  let(:user_select_regex) { /SELECT User, Host FROM mysql.user/ }
   let(:bobby_tables) { "Robert'; DROP TABLE Students; --" }
 
   def with_no_user_in_db
