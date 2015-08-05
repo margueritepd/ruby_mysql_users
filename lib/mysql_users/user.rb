@@ -46,7 +46,6 @@ module MysqlUsers
       sql += " WITH GRANT OPTION" if options.fetch(:with_grant_option, false)
 
       db_client.query(sql)
-      db_client.query('FLUSH PRIVILEGES')
     end
 
     def revoke(options)
