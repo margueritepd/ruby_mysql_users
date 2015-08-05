@@ -49,6 +49,14 @@ module MysqlUsers
       db_client.query('FLUSH PRIVILEGES')
     end
 
+    def revoke(options)
+      db = backtick_or_star(options[:database])
+      table = backtick_or_star(options[:table])
+      sql = "REVOKE "
+      sql += " ON #{db}.#{table}"
+      db_client.query(sql)
+    end
+
     private
 
     def user_address

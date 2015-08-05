@@ -243,5 +243,22 @@ RSpec.describe(:user) do
       user.revoke(grant_options)
     end
 
+    it 'should revoke from * if no database provided' do
+      grant_options.delete(:database)
+      expect(database_client).to receive(:query).with(/REVOKE .* ON \*\.`tbl`/)
+      user.revoke(grant_options)
+    end
+
+    it 'should revoke from * if no table provided' do
+      grant_options.delete(:table)
+      expect(database_client).to receive(:query).with(/REVOKE .* ON `db`\.\*/)
+      user.revoke(grant_options)
+    end
+
+    it 'should surround table and db name in backticks' do
+      expect(database_client).to receive(:query).with(/REVOKE.* ON `db`\.`tbl`/)
+      user.revoke(grant_options)
+    end
+
   end
 end
