@@ -223,4 +223,25 @@ RSpec.describe(:user) do
       user.grant(grant_options)
     end
   end
+
+  context(:revoke) do
+    let(:grant_options) do
+      {
+        database: 'db',
+        table: 'tbl',
+        grants: [
+          :select
+        ]
+      }
+    end
+
+    it 'should revoke with full correct query (happy path)' do
+      pending('full revoke implementation')
+      expect(database_client).to receive(:query).with(
+        "REVOKE select ON `db`.`tbl` FROM 'marguerite'@'%'"
+      )
+      user.revoke(grant_options)
+    end
+
+  end
 end
