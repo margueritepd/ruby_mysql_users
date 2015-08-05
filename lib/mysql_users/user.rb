@@ -12,8 +12,6 @@ module MysqlUsers
       @e_scope = escape(options.fetch(:scope))
       p = options[:password]
       @e_password = p ? escape(p) : nil
-      @raw_username = options[:username]
-      @raw_scope = options[:scope]
     end
 
     def exists?
