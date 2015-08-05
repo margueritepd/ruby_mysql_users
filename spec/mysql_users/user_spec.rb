@@ -13,7 +13,7 @@ RSpec.describe(:user) do
   let(:user) do
     MysqlUsers::User.new(
       database_client,
-      { username: 'marguerite', scope: '%' },
+      { username: 'marguerite', host: '%' },
     )
   end
 
@@ -35,11 +35,11 @@ RSpec.describe(:user) do
   context(:new) do
     it 'errors if username is missing' do
       expect {
-        MysqlUsers::User.new(database_client, { scope: '%' })
+        MysqlUsers::User.new(database_client, { host: '%' })
       }.to raise_exception(KeyError)
     end
 
-    it 'errors if scope is missing' do
+    it 'errors if host is missing' do
       expect {
         MysqlUsers::User.new(database_client, { username: 'marg' })
       }.to raise_exception(KeyError)
@@ -48,12 +48,12 @@ RSpec.describe(:user) do
 
   context(:exists?) do
 
-    it 'exists? should return true if that username+scope exists' do
+    it 'exists? should return true if that username+host exists' do
       with_user_in_db
       expect(user.exists?).to eq(true)
     end
 
-    it 'exists? should return false if that username+scope doesn\'t exists' do
+    it 'exists? should return false if that username+host doesn\'t exists' do
       with_no_user_in_db
       expect(user.exists?).to eq(false)
     end
@@ -61,7 +61,7 @@ RSpec.describe(:user) do
     it 'should escape username before interpolating in sql string' do
       user = MysqlUsers::User.new(
         database_client,
-        { username: bobby_tables, scope: '%' },
+        { username: bobby_tables, host: '%' },
       )
 
       expect(database_client).to_not receive(:query).with(/bert'/)
@@ -70,10 +70,10 @@ RSpec.describe(:user) do
       user.exists?
     end
 
-    it 'should escape scope before interpolating in sql string' do
+    it 'should escape host before interpolating in sql string' do
       user = MysqlUsers::User.new(
         database_client,
-        { username: 'marguerite', scope: bobby_tables },
+        { username: 'marguerite', host: bobby_tables },
       )
 
       expect(database_client).to_not receive(:query).with(/bert'/)
@@ -104,7 +104,7 @@ RSpec.describe(:user) do
       with_no_user_in_db
       user = MysqlUsers::User.new(
         database_client,
-        { username: 'u', scope: '%', password: 'p' },
+        { username: 'u', host: '%', password: 'p' },
       )
 
       expect(database_client).to receive(:query).with(
@@ -118,7 +118,7 @@ RSpec.describe(:user) do
       with_no_user_in_db
       user = MysqlUsers::User.new(
         database_client,
-        { username: 'u', scope: '%', password: bobby_tables },
+        { username: 'u', host: '%', password: bobby_tables },
       )
       expect(database_client).to_not receive(:query).with(/bert'/)
       expect(database_client).to receive(:query).with(/^CREATE.*bert\\'/)

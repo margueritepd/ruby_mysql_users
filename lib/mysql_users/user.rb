@@ -2,19 +2,19 @@ module MysqlUsers
   class User
     attr_reader :db_client
     attr_reader :e_username
-    attr_reader :e_scope
+    attr_reader :e_host
 
     def initialize(db_client, options={})
       @db_client = db_client
       @e_username = escape(options.fetch(:username))
-      @e_scope = escape(options.fetch(:scope))
+      @e_host = escape(options.fetch(:host))
       p = options[:password]
       @e_password = p ? escape(p) : nil
     end
 
     def exists?
       query = "SELECT User, Scope FROM mysql.user WHERE "\
-        "User='#{e_username}' AND Scope='#{e_scope}'"
+        "User='#{e_username}' AND Scope='#{e_host}'"
       result = db_client.query(query)
       result.count != 0
     end
@@ -58,7 +58,7 @@ module MysqlUsers
     private
 
     def user_address
-      "'#{e_username}'@'#{e_scope}'"
+      "'#{e_username}'@'#{e_host}'"
     end
 
     def verify_grants_sanitized(grants, verb)
@@ -85,7 +85,6 @@ module MysqlUsers
     def create
       sql = "CREATE USER #{user_address}"
       sql += " IDENTIFIED BY '#{@e_password}'" if has_password?
-
       db_client.query(sql)
     end
 
