@@ -25,6 +25,7 @@ module MysqlUsers
     end
 
     def drop
+      return unless exists?
       sql = "DROP USER #{user_address}"
       db_client.query(sql)
     end

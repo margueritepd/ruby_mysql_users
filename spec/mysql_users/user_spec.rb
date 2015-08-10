@@ -128,10 +128,17 @@ RSpec.describe(:user) do
   end
 
   context(:drop) do
-    it 'should remove user from database' do
-      expect(database_client).to receive(:query).with(
-        %q{DROP USER 'marguerite'@'%'}
-      )
+    let(:drop_user_sql) { %q{DROP USER 'marguerite'@'%'} }
+
+    it 'should remove user from database if user exists' do
+      with_user_in_db
+      expect(database_client).to receive(:query).with(drop_user_sql)
+      user.drop
+    end
+
+    it 'should not drop the user if it doesn\'t exist' do
+      with_no_user_in_db
+      expect(database_client).to_not receive(:query).with(drop_user_sql)
       user.drop
     end
   end

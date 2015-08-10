@@ -55,7 +55,7 @@ begin
       database: 'web',
       table: 'auth',
     })
-    user.drop
+    user.drop  # won't complain if user doesn't exist
   end
 rescue => e
   puts e
