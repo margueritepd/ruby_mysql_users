@@ -83,21 +83,21 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:create_idempotently) do
+  context(:create) do
     let(:create_user_regex) { /^CREATE USER 'marguerite'@'%'$/ }
 
     it 'should create the user without password if no password given' do
       with_no_user_in_db
       expect(database_client).to receive(:query).with(create_user_regex)
 
-      user.create_idempotently
+      user.create
     end
 
     it 'should not create the user if it does exist' do
       with_user_in_db
       expect(database_client).to_not receive(:query).with(create_user_regex)
 
-      user.create_idempotently
+      user.create
     end
 
     it 'should create the user with password if password given' do
@@ -111,7 +111,7 @@ RSpec.describe(:user) do
         /^CREATE USER 'u'@'%' IDENTIFIED BY 'p'$/
       )
 
-      user.create_idempotently
+      user.create
     end
 
     it 'should escape interpolated password when creating' do
@@ -123,7 +123,7 @@ RSpec.describe(:user) do
       expect(database_client).to_not receive(:query).with(/bert'/)
       expect(database_client).to receive(:query).with(/^CREATE.*bert\\'/)
 
-      user.create_idempotently
+      user.create
     end
   end
 

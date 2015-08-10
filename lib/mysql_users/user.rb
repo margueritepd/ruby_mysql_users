@@ -19,9 +19,9 @@ module MysqlUsers
       result.count != 0
     end
 
-    def create_idempotently
+    def create
       return if exists?
-      create
+      create_without_check
     end
 
     def drop
@@ -82,7 +82,7 @@ module MysqlUsers
       !@e_password.nil?
     end
 
-    def create
+    def create_without_check
       sql = "CREATE USER #{user_address}"
       sql += " IDENTIFIED BY '#{@e_password}'" if has_password?
       db_client.query(sql)

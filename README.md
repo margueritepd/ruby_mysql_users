@@ -44,7 +44,7 @@ begin
         password: 'foo',
       }
     )
-    user.create_idempotently
+    user.create  # won't complain if user exists already
     user.grant({
       grants: ['ALL PRIVILEGES'],
       database: 'web',
