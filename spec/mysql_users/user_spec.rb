@@ -32,7 +32,7 @@ RSpec.describe(:user) do
       .and_return(db_user_result)
   end
 
-  context(:new) do
+  context('.new') do
     it 'errors if username is missing' do
       expect {
         MysqlUsers::User.new(database_client, { host: '%' })
@@ -46,7 +46,7 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:exists?) do
+  context('#exists?') do
 
     it 'exists? should return true if that username+host exists' do
       with_user_in_db
@@ -83,7 +83,7 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:create) do
+  context('#create') do
     let(:create_user_regex) { /^CREATE USER 'marguerite'@'%'$/ }
 
     it 'should create the user without password if no password given' do
@@ -127,7 +127,7 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:drop) do
+  context('#drop') do
     let(:drop_user_sql) { %q{DROP USER 'marguerite'@'%'} }
 
     it 'should remove user from database if user exists' do
@@ -143,7 +143,7 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:grant) do
+  context('#grant') do
     let(:grant_options) do
       {
         database: 'db',
@@ -228,7 +228,7 @@ RSpec.describe(:user) do
     end
   end
 
-  context(:revoke) do
+  context('#revoke') do
     let(:grant_options) do
       {
         database: 'db',
